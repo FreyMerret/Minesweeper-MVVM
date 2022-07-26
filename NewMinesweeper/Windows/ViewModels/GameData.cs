@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace NewMinesweeper.Controls
 {
+    /// <summary> Стадии игры </summary>
     public enum GameStage : int
     {
         Started = 0,
@@ -18,7 +19,7 @@ namespace NewMinesweeper.Controls
         public int MinesCount { get; set; }
         public bool[,] MinesPositions { get; set; }
 
-
+        /// <summary> Количество мин, которое осталось найти и событие для уведомления MainWindowViewModel</summary>
         private int _minesLeft;
         public int MinesLeft
         {
@@ -29,9 +30,10 @@ namespace NewMinesweeper.Controls
                 NotificationMainWindowAboutUpdatingRemainingMinesEvent.Invoke(this, new NotificationMainWindowAboutUpdatingRemainingMinesArgs() { MinesLeft = value });
             }
         }
-        public event EventHandler<NotificationMainWindowAboutUpdatingRemainingMinesArgs> NotificationMainWindowAboutUpdatingRemainingMinesEvent;
-        
 
+        public event EventHandler<NotificationMainWindowAboutUpdatingRemainingMinesArgs> NotificationMainWindowAboutUpdatingRemainingMinesEvent;
+
+        /// <summary> Текущая стадия игры и событие для уведомления MainWindowViewModel</summary>
         private GameStage _currentGameStage;
         public GameStage CurrentGameStage
         {
@@ -45,6 +47,7 @@ namespace NewMinesweeper.Controls
                 }
             }
         }
+
         public event EventHandler<NotifyMainWindowAboutUpdatingCurrentGameStageArgs> NotificationMainWindowAboutUpdatingCurrentGameStageEvent;
 
 

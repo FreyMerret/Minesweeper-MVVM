@@ -11,25 +11,38 @@ namespace NewMinesweeper.Controls
         /// <summary>Дефолтный размер клетки </summary>
         private const int DefaultCellSize = 25;
 
+        /// <summary> Количество неоткрытых ячеек </summary>
+        private int _notOpenedCells;
+        public int NotOpenedCells
+        {
+            get => _notOpenedCells;
+            set
+            {
+                _notOpenedCells = value;
+                if (_notOpenedCells == Data.MinesCount)
+                    Win();
+            }
+
+        }
+
         /// <summary>Свойство, отвечающее за размер ячеек на поле </summary>
         public static readonly DependencyProperty CellSizeProperty = DependencyProperty.Register(
-                                                                        nameof(CellSize),
-                                                                        typeof(int),
-                                                                        typeof(MineField),
-                                                                        new PropertyMetadata(DefaultCellSize));
+            nameof(CellSize),
+            typeof(int),
+            typeof(MineField),
+            new PropertyMetadata(DefaultCellSize));
 
         /// <summary> Свойство, отвечающее за привязку к данным минного поля (кнопкам) </summary>
         public static readonly DependencyProperty DataProviderProperty = DependencyProperty.Register(
-                                                                            nameof(Data),
-                                                                            typeof(GameData),
-                                                                            typeof(MineField),
-                                                                            new PropertyMetadata(
-                                                                                //default(EmptyCellDataProvider),
-                                                                                (sourceObject, args) =>
-                                                                                {
-                                                                                    var mineField = sourceObject as MineField;
-                                                                                    mineField?.CurrentGameDataChanged((GameData)args.OldValue, (GameData)args.NewValue);
-                                                                                }));
+            nameof(Data),
+            typeof(GameData),
+            typeof(MineField),
+            new PropertyMetadata(
+                (sourceObject, args) =>
+                {
+                    var mineField = sourceObject as MineField;
+                    mineField?.CurrentGameDataChanged((GameData)args.OldValue, (GameData)args.NewValue);
+                }));
 
         public int CellSize
         {
@@ -45,18 +58,8 @@ namespace NewMinesweeper.Controls
         }
 
         private MineButton[,] _buttons;
-        private int _notOpenedCells;
-        public int NotOpenedCells
-        {
-            get => _notOpenedCells;
-            set
-            {
-                _notOpenedCells = value;
-                if (_notOpenedCells == Data.MinesCount)
-                    Win();
-            }
 
-        }
+
 
         public MineField()
         {
@@ -64,17 +67,13 @@ namespace NewMinesweeper.Controls
             RightButtonClickCommand = new RelayCommand(OnRightButtonClickCommandExecuted, CanRightButtonClickCommandExecuted);
         }
 
-        #region Methods for work with field
 
         private void CurrentGameDataChanged(GameData oldValue, GameData newValue)
         {
             RemoveUnactualField(oldValue);
             DrawNewField();
             NotOpenedCells = newValue.Height * newValue.Width;
-
         }
-
-        #endregion
 
         private void RemoveUnactualField(GameData oldValue)
         {
@@ -123,7 +122,11 @@ namespace NewMinesweeper.Controls
             }
         }
 
-        #region Commands
+
+        #region ------------------Команды------------------
+
+        #region LeftButtonClickCommand
+
         public ICommand LeftButtonClickCommand { get; }
 
         private bool CanLeftButtonClickCommandExecuted(object p)
@@ -140,6 +143,10 @@ namespace NewMinesweeper.Controls
             if (button != null)
                 LeftButtonClick(button.X, button.Y);
         }
+
+        #endregion
+
+        #region RightButtonClickCommand
 
         public ICommand RightButtonClickCommand { get; }
 
@@ -173,8 +180,11 @@ namespace NewMinesweeper.Controls
 
         #endregion
 
-        #region Methods for commands
+        #endregion
 
+        #region -------------Методы для команд-------------
+
+        /// <summary> Метод для обработки нажатия ЛКМ </summary>
         public void LeftButtonClick(int x, int y)
         {
             if(Data.CurrentGameStage == GameStage.Started)
@@ -191,6 +201,7 @@ namespace NewMinesweeper.Controls
                 OpenCell(x, y);
         }
 
+        /// <summary> Метод открытия ячейки с проверкой на существование такой ячейки </summary>
         public void OpenCell(int x, int y)
         {
             if (x < 0 || y < 0 || x > Data.Width - 1 || y > Data.Height - 1 || _buttons[x, y].CurrentCellType != CellType.Button)
@@ -212,6 +223,7 @@ namespace NewMinesweeper.Controls
             }
         }
 
+        /// <summary> Метод для подсчета количества мин вокруг </summary>
         public int CountMinesAround(int x, int y)
         {
             int result = 0;
@@ -232,6 +244,7 @@ namespace NewMinesweeper.Controls
             return result;
         }
 
+        /// <summary> Проверка наличия мины на ячейке с координатами X,Y </summary>
         public bool CheckMine(int x, int y)
         {
             if (x < 0 || y < 0 || x > Data.Width - 1 || y > Data.Height - 1)
@@ -239,6 +252,7 @@ namespace NewMinesweeper.Controls
             return Data.MinesPositions[x, y];
         }
 
+        /// <summary> Метод для вызова "метода открытия ячейки" для всех ячеек вокруг </summary>
         public void OpenAround(int x, int y)
         {
             OpenCell(x - 1, y - 1);
@@ -251,11 +265,13 @@ namespace NewMinesweeper.Controls
             OpenCell(x, y - 1);
         }
 
+        /// <summary> Проверка равенства поставленных флагов и количества мин вокруг ячейки</summary>
         public bool EnoughtFlagsAround(int x, int y)
         {
             return (int)_buttons[x, y].CurrentCellType == CountFlagsAround(x, y);
         }
 
+        /// <summary> Метод для подсчета количества флагов вокруг </summary>
         public int CountFlagsAround(int x, int y)
         {
             int result = 0;
@@ -276,6 +292,7 @@ namespace NewMinesweeper.Controls
             return result;
         }
 
+        /// <summary> Проверка наличия флага на ячейке с координатами X,Y </summary>
         public bool CheckFlag(int x, int y)
         {
             if (x < 0 || y < 0 || x > Data.Width - 1 || y > Data.Height - 1)
@@ -283,6 +300,7 @@ namespace NewMinesweeper.Controls
             return _buttons[x, y].CurrentCellType == CellType.Flagged;
         }
 
+        /// <summary> Метод для отображения мин и неправильно установленных флагов в конце любой игры</summary>
         public void GameOver()
         {
             Data.CurrentGameStage = GameStage.GameOver;
@@ -302,11 +320,13 @@ namespace NewMinesweeper.Controls
                 }
         }
 
+        /// <summary> Метод для вывода MessageBox с поздравлениями в случае победы</summary>
         public void Win()
         {
             GameOver();
-            (new Thread(()=> MessageBox.Show("Вы победили"))).Start();
+            (new Thread(()=> MessageBox.Show("Поздравляю! Вы победили!"))).Start();
         }
+
         #endregion
     }
 }

@@ -61,11 +61,6 @@ namespace NewMinesweeper.Controls
             }
         }
 
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-        }
-
         public MineButton(int x, int y)
         {
             DataContext = this;

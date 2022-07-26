@@ -17,7 +17,8 @@ namespace NewMinesweeper.Windows.ViewModels
 
     public class MainWindowViewModel : BaseViewModel
     {
-        private readonly IDictionary<DifficultyLevel, Func<GameData>> _difficultySettings;
+        /// <summary> Словарь для хранения настроек различных уровней сложности </summary>
+        private readonly IDictionary<DifficultyLevel, Func<GameData>> _difficultySettings;  //генерируется в консрукторе этого класса
 
 
         private readonly Timer _timer;
@@ -59,16 +60,20 @@ namespace NewMinesweeper.Windows.ViewModels
         }
 
 
-        #region ------------------Commands------------------
+        #region ------------------Команды------------------
 
-        /// <summary>Комманда для закрытия приложения </summary>
+        #region CloseApplicationCommand - Команда закрытия приложения
+
         public ICommand CloseApplicationCommand { get; }
 
         private bool CanCloseApplicationCommandExecuted(object p) => true;
 
         private void OnCloseApplicationCommandExecuted(object p) => Application.Current.Shutdown();
 
+        #endregion
 
+
+        #region NewGameCommand - Команда начала новой игры
 
         public ICommand NewGameCommand { get; }
 
@@ -76,7 +81,10 @@ namespace NewMinesweeper.Windows.ViewModels
 
         private void OnNewGameCommandExecuted(object p) => NewGame();
 
+        #endregion
 
+
+        #region ChangeDifficultyCommand - Команда смены сложности
 
         public ICommand ChangeDifficultyCommand { get; }
 
@@ -88,8 +96,9 @@ namespace NewMinesweeper.Windows.ViewModels
                 ChangeDifficulty((DifficultyLevel)p);
         }
 
-        #endregion 
+        #endregion
 
+        #endregion
 
 
         public MainWindowViewModel()
@@ -101,6 +110,8 @@ namespace NewMinesweeper.Windows.ViewModels
             CloseApplicationCommand = new RelayCommand(OnCloseApplicationCommandExecuted, CanCloseApplicationCommandExecuted);
             NewGameCommand = new RelayCommand(OnNewGameCommandExecuted, CanNewGameCommandExecuted);
             ChangeDifficultyCommand = new RelayCommand(OnChangeDifficultyCommandExecuted, CanChangeDifficultyCommandExecuted);
+
+
             _difficultySettings = new Dictionary<DifficultyLevel, Func<GameData>>
             {
                 { DifficultyLevel.Easy, () => CreateMinesField(9, 9, 10) },
@@ -116,18 +127,21 @@ namespace NewMinesweeper.Windows.ViewModels
             return new GameData(width, height, minesCount, NotificationMainWindowAboutUpdatingCurrentGameStage, NotificationMainWindowAboutUpdatingRemainingMines);
         }
 
-        private void ChangeDifficulty(DifficultyLevel newDifficultyLevel)
-        {
-            _currentDifficultyLevel = newDifficultyLevel;
-            NewGame();
-        }
-
         private void NewGame()
         {
             _timer.Stop();
             SecondsGone = 0;
             CurrentGameData = _difficultySettings[_currentDifficultyLevel]();       //запускаем генерацию поля в зависимости от уровня сложности
         }
+
+        private void ChangeDifficulty(DifficultyLevel newDifficultyLevel)
+        {
+            _currentDifficultyLevel = newDifficultyLevel;
+            NewGame();
+        }
+
+
+        #region Методы, которые будут вызваны при обновлении данных в CurrentGameData
 
         private void NotificationMainWindowAboutUpdatingCurrentGameStage(object sender, NotifyMainWindowAboutUpdatingCurrentGameStageArgs args)
         {
@@ -145,7 +159,11 @@ namespace NewMinesweeper.Windows.ViewModels
         {
             MinesLeft = args.MinesLeft;
         }
+
+        #endregion
+
     }
+
 
     public class NotifyMainWindowAboutUpdatingCurrentGameStageArgs : EventArgs
     {
