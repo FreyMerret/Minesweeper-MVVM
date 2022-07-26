@@ -42,13 +42,13 @@
                             </Grid.ColumnDefinitions>
 
                             <Border Grid.Column="0" BorderThickness="0 0 1 1" BorderBrush="White">
-                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding MinesLeft}"/>
+                                <TextBlock FontSize="16" Foreground="Red" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding MinesLeft}"/>
                             </Border>
                             
                             <Button VerticalAlignment="Center" Grid.Column="1" Content="Новая игра" Command="{Binding NewGameCommand}"/>
-                            
+
                             <Border BorderThickness="0 0 1 1" BorderBrush="White" Grid.Column="2" >
-                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="2" Text="{Binding SecondsGone}"/>
+                                <TextBlock FontSize="16" Foreground="Red" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="2" Text="{Binding SecondsGone}"/>
                             </Border>
                         </Grid>
                     </Border>
